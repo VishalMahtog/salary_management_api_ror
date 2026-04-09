@@ -8,6 +8,16 @@ module Authentication
       json_response({ message: "Unauthorized" }, :unauthorized)
     end
 
+    def create
+      self.resource = warden.authenticate(auth_options)
+
+      if resource
+        respond_with(resource)
+      else
+        json_response({ message: "Invalid email or password" }, :unauthorized)
+      end
+    end
+
     private
 
     def respond_with(resource, _opts = {})

@@ -6,11 +6,12 @@ module Response
     render json: object, status: status
   end
 
-  def paginate_json(page)
+  def paginate_json(pagy)
     {
-      current_page: page.page,
-      total_pages: page.pages, total_count: page.count,
-      first_page: 1, last_page: page.pages
+      current_page: pagy.page,
+      total_pages: pagy.pages,
+      total_count: pagy.count,
+      per_page: pagy.items
     }
   end
 

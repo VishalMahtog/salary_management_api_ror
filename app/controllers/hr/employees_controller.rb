@@ -1,11 +1,14 @@
 module Hr
   class EmployeesController < Hr::BaseController
     before_action :set_employee, only: %i[show update destroy]
+    before_action :set_paginate, only: :index
 
     def index
-      @employees = Employee.all
+      @pagy, @employees = pagy(Employee.all, items: @per_page, page: @page)
+
       json_response(
-        employees: EmployeeSerializer.new(@employees).serializable_hash[:data].pluck(:attributes)
+        employees: EmployeeSerializer.new(@employees).serializable_hash[:data].pluck(:attributes),
+        pagination: paginate_json(@pagy)
       )
     end
 
