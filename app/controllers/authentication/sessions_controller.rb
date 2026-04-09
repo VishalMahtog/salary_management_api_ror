@@ -11,7 +11,7 @@ module Authentication
     private
 
     def respond_with(resource, _opts = {})
-      token = request.env['warden-jwt_auth.token']
+      token = request.env["warden-jwt_auth.token"]
 
       json_response({
         message: "Logged in successfully",
