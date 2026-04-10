@@ -1,9 +1,44 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+require 'faker'
+require 'securerandom'
+
+employees = []
+
+designations = [
+  "Software Engineer",
+  "Project Manager",
+  "HR Executive",
+  "Marketing Specialist",
+  "Senior Accountant"
+]
+
+total = 10_000
+batch_size = 1000
+
+total.times do |i|
+  employees << {
+    full_name: Faker::Name.name,
+    job_title: Faker::Job.title,
+    country: Faker::Address.country,
+    salary: rand(30_000..150_000),
+    role: [ 0, 1 ].sample,
+    designation: designations.sample,
+    email: Faker::Internet.unique.email,
+    encrypted_password: Devise::Encryptor.digest(Employee, "123456"),
+    active: true,
+    created_at: Time.current,
+    updated_at: Time.current,
+    confirmed_at: Time.current,
+    jti: SecureRandom.uuid
+  }
+
+  if (i + 1) % batch_size == 0
+    Employee.insert_all(employees)
+    employees = []
+
+    puts "Inserted #{i + 1} / #{total} employees"
+  end
+end
+
+Employee.insert_all(employees) if employees.any?
+
+puts "✅ Done inserting #{total} employees"
