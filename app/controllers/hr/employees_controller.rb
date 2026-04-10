@@ -2,17 +2,10 @@ module Hr
   class EmployeesController < Hr::BaseController
     before_action :set_employee, only: %i[show update destroy]
     before_action :set_paginate, only: %i[index]
-    def index
-      employees_scope = Employee.all
-      if params[:search].present?
-        search_query = "%#{params[:search].strip}%"
-        employees_scope = employees_scope.where(
-          "full_name LIKE ? OR email LIKE ? OR job_title LIKE ?",
-          search_query, search_query, search_query
-        )
-      end
+    before_action :filter_employee, only: %i[index]
 
-      @pagy, @employees = pagy(employees_scope.order(created_at: :desc), items: @per_page, page: @page)
+    def index
+      @pagy, @employees = pagy(Employee.where(@conditions).order(created_at: :desc), items: @per_page, page: @page)
 
       json_response(
         employees: EmployeeSerializer.new(@employees).serializable_hash[:data].map { |e| e[:attributes].merge(id: e[:id]) },
@@ -61,6 +54,10 @@ module Hr
       params.require(:employee).permit(
         :full_name, :job_title, :country, :salary, :role, :designation, :email, :password, :password_confirmation, :active
       )
+    end
+
+    def filter_employee
+      build_condition :search, operator: "like", column: "CONCAT_WS(' ', full_name, email, job_title)"
     end
   end
 end

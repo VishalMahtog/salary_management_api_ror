@@ -4,7 +4,7 @@ module Hr
     before_action :filter_employee, only: %i[salary_stats job_title_stats]
 
     def salary_stats
-      stats_query = Employee.where(@conditions).group(:country).select(
+      stats_query = Employee.active.where(@conditions).group(:country).select(
         "country, MIN(salary) AS min_salary, MAX(salary) AS max_salary, AVG(salary) AS average_salary, COUNT(id) AS employee_count"
       ).order(:country)
 
@@ -27,7 +27,7 @@ module Hr
     end
 
     def job_title_stats
-      stats_query = Employee.where(@conditions).group(:country, :job_title).select(
+      stats_query = Employee.active.where(@conditions).group(:country, :job_title).select(
         "country, job_title, MIN(salary) AS min_salary, MAX(salary) AS max_salary, AVG(salary) AS average_salary, COUNT(id) AS employee_count"
       ).order(:country, :job_title)
 
