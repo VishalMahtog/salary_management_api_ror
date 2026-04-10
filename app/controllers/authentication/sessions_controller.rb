@@ -5,16 +5,17 @@ module Authentication
     respond_to :json
 
     def new
-      json_response({ message: "Unauthorized" }, :unauthorized)
+      json_response({ error: "Unauthorized" }, :unauthorized)
     end
 
     def create
-      self.resource = warden.authenticate(auth_options)
+      self.resource = Employee.authenticate(params[:email], params[:password])
 
       if resource
+        sign_in(resource)
         respond_with(resource)
       else
-        json_response({ message: "Invalid email or password" }, :unauthorized)
+        json_response({ error: "Invalid email or password, or your account is not confirmed or has been deactivated." }, :unauthorized)
       end
     end
 
@@ -34,7 +35,7 @@ module Authentication
       if current_employee
         json_response({ message: "Logged out successfully" }, :ok)
       else
-        json_response({ message: "Couldn't find an active session" }, :unauthorized)
+        json_response({ error: "Couldn't find an active session" }, :unauthorized)
       end
     end
   end

@@ -6,7 +6,11 @@ class ApplicationController < ActionController::API
   private
 
   def authenticate_employee!
-    unless current_employee
+    if current_employee
+      unless current_employee.active?
+        json_response({ error: "Your account is deactivated. Please contact support." }, :unauthorized)
+      end
+    else
       json_response({ error: "Please login with valid token" }, :unauthorized)
     end
   end
