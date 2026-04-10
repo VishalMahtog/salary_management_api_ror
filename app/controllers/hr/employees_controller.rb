@@ -1,13 +1,21 @@
 module Hr
   class EmployeesController < Hr::BaseController
     before_action :set_employee, only: %i[show update destroy]
-    before_action :set_paginate, only: :index
-
+    before_action :set_paginate, only: %i[index]
     def index
-      @pagy, @employees = pagy(Employee.all, items: @per_page, page: @page)
+      employees_scope = Employee.all
+      if params[:search].present?
+        search_query = "%#{params[:search].strip}%"
+        employees_scope = employees_scope.where(
+          "full_name LIKE ? OR email LIKE ? OR job_title LIKE ?",
+          search_query, search_query, search_query
+        )
+      end
+
+      @pagy, @employees = pagy(employees_scope.order(created_at: :desc), items: @per_page, page: @page)
 
       json_response(
-        employees: EmployeeSerializer.new(@employees).serializable_hash[:data].pluck(:attributes),
+        employees: EmployeeSerializer.new(@employees).serializable_hash[:data].map { |e| e[:attributes].merge(id: e[:id]) },
         pagination: paginate_json(@pagy)
       )
     end
