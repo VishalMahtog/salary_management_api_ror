@@ -14,7 +14,7 @@ gem "bcrypt", "~> 3.1.7"
 gem "devise"
 gem "devise-jwt"
 gem "fast_jsonapi"
-gem "pagy", "6.0.4"
+gem "pagy", "43.4.4"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
